@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>内輪差シミュレータ（授業教材用モデル）</title>
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.js"></script>
+  <script src="sketch.js"></script>
+  
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']]
+      }
+    };
+  </script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+  <style>
+    body {
+      margin: 0;
+      padding: 20px;
+      font-family: sans-serif;
+      background-color: #f0f0f0;
+    }
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .container {
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      gap: 20px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    #canvas-container {
+      border: 2px solid #333;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      background-color: #fff;
+    }
+    .info-panel {
+      width: 420px;
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+    .card {
+      background: #ffffff;
+      border: 2px solid #333;
+      border-radius: 8px;
+      padding: 15px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+    .card h3 {
+      margin-top: 0;
+      margin-bottom: 10px;
+      font-size: 16px;
+      border-bottom: 1px solid #ccc;
+      padding-bottom: 5px;
+      color: #333;
+    }
+    .control-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .control-group label {
+      font-size: 14px;
+      font-weight: bold;
+      color: #333;
+    }
+    .control-group select {
+      padding: 6px 10px;
+      font-size: 14px;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+      background-color: #fff;
+      cursor: pointer;
+    }
+    .value-box {
+      font-size: 18px;
+      font-weight: bold;
+      color: #111;
+      word-break: break-all;
+      min-height: 30px;
+    }
+    .answer-section {
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px dashed #ccc;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .answer-input-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .answer-input-group input, .answer-input-group select {
+      flex: 1;
+      padding: 7px 10px;
+      font-size: 14px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    .btn-submit {
+      padding: 7px 14px;
+      font-size: 14px;
+      font-weight: bold;
+      color: #fff;
+      background-color: #007bff;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+    .btn-submit:hover {
+      background-color: #0056b3;
+    }
+    .btn-next {
+      padding: 8px 14px;
+      font-size: 14px;
+      font-weight: bold;
+      color: #fff;
+      background-color: #28a745;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      align-self: flex-end;
+      margin-top: 5px;
+    }
+    .btn-next:hover {
+      background-color: #218838;
+    }
+    
+    /* ▼▼ モーダル用のスタイル ▼▼ */
+    #intro-modal-overlay, #outro-modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background-color: rgba(0, 0, 0, 0.75);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+    #outro-modal-overlay {
+      display: none;
+    }
+    .modal-content {
+      background-color: white;
+      padding: 35px 45px;
+      border-radius: 12px;
+      max-width: 600px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+      font-size: 15px;
+      line-height: 1.6;
+      color: #333;
+    }
+    .modal-content h3 {
+      margin-top: 0;
+      color: #333;
+      text-align: center;
+      border-bottom: 2px solid #007bff;
+      padding-bottom: 12px;
+      margin-bottom: 20px;
+      font-size: 20px;
+    }
+    .modal-content ul {
+      margin-bottom: 20px;
+      padding-left: 25px;
+    }
+    .modal-content li {
+      margin-bottom: 8px;
+    }
+    .btn-start {
+      display: block;
+      width: 100%;
+      padding: 14px;
+      margin-top: 25px;
+      font-size: 18px;
+      font-weight: bold;
+      color: #fff;
+      background-color: #007bff;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+    .btn-start:hover {
+      background-color: #0056b3;
+    }
+    kbd {
+      background-color: #f8f9fa;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      padding: 3px 6px;
+      font-family: monospace;
+      font-size: 14px;
+      color: #333;
+      box-shadow: 0 2px 0 rgba(0,0,0,0.2);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ▼▼ イントロダクションモーダル ▼▼ -->
+  <div id="intro-modal-overlay">
+    <div class="modal-content">
+      <h3>シミュレータの目的と操作方法</h3>
+      <p>本シミュレータは、以下の目的で作成されています：</p>
+      <ul>
+        <li>実生活における車の<strong>「内輪差」</strong>のメカニズムを視覚的に理解する</li>
+        <li>内輪差を考慮することで、<strong>巻き込み事故に注意して生活する</strong>ための安全意識を高める</li>
+        <li>シミュレータを通して問題を解くことで、<strong>数学の「領域」の学習・習得をアシストする</strong></li>
+      </ul>
+      <p><strong>【操作方法】</strong></p>
+      <p>第1問の問題を解く前に、キーボードの <kbd>スペースキー</kbd> を押すことで、シミュレータ上の車両を走らせたり、元の位置にリセットしたりすることができます。</p>
+      <p>青い点（歩行者）をマウスでドラッグして自由に動かし、車両の軌跡とどのような位置関係で「危険」になるのか確認してみましょう。</p>
+      
+      <button class="btn-start" onclick="closeIntroModal()">シミュレータをはじめる（次へ）</button>
+    </div>
+  </div>
+
+  <!-- ▼▼ 終了用（まとめ）モーダル ▼▼ -->
+  <div id="outro-modal-overlay">
+    <div class="modal-content">
+      <h3>【まとめ】内輪差と交通安全</h3>
+      <p>今回のシミュレータと計算を通じて、以下のことを学びました。</p>
+      <ul>
+        <li>車が曲がる時の内輪差には、<strong>車両の領域（軌跡が作る図形）</strong>が大きく関わってきます。</li>
+        <li>計算結果で示されたように、内輪差の危険領域は<strong>皆さんが想像するよりもずっと広い面積</strong>になります。</li>
+      </ul>
+      <p><strong>【日頃から気をつけること】</strong></p>
+      <ul>
+        <li>交差点で信号待ちをする時などは、車が内回りに曲がってくることを想定し、<strong>内輪差に巻き込まれないよう車道から一歩下がって</strong>待機しましょう。</li>
+        <li>将来みなさんが車を運転する立場になった時は、常に内輪差が発生することを意識し、<strong>歩行者や自転車を絶対に巻き込まないよう安全確認を徹底</strong>することが大切です。</li>
+      </ul>
+      <button class="btn-start" onclick="returnToStart()" style="background-color: #28a745;">最初へ戻る（シミュレータをリセット）</button>
+    </div>
+  </div>
+
+  <script>
+    function closeIntroModal() {
+      const modal = document.getElementById('intro-modal-overlay');
+      if (modal) {
+        modal.style.display = 'none';
+        // p5.js側にモーダルが閉じたことを通知
+        if (typeof window.onModalClosed === 'function') {
+          window.onModalClosed();
+        }
+      }
+    }
+
+    function showOutroModal() {
+      const modal = document.getElementById('outro-modal-overlay');
+      if (modal) {
+        modal.style.display = 'flex';
+      }
+      // モーダルが開いたので p5.js 側に通知
+      if (typeof window.onModalOpened === 'function') {
+        window.onModalOpened();
+      }
+    }
+
+    function returnToStart() {
+      const outroModal = document.getElementById('outro-modal-overlay');
+      if (outroModal) outroModal.style.display = 'none';
+      
+      const introModal = document.getElementById('intro-modal-overlay');
+      if (introModal) introModal.style.display = 'flex';
+      
+      if (typeof window.resetToInitialState === 'function') {
+        window.resetToInitialState();
+      }
+    }
+  </script>
+
+  <h2>動的衝突判定シミュレータ（図形と方程式）</h2>
+  <div class="container">
+    <div id="canvas-container"></div>
+    
+    <div class="info-panel">
+      <!-- 表示設定 -->
+      <div class="card">
+        <h3>表示設定</h3>
+        <div class="control-group">
+          <label style="cursor: pointer; font-size: 14px; font-weight: normal; display: flex; align-items: center; gap: 8px;">
+            <input type="checkbox" id="grid-toggle" onchange="toggleGrid()">
+            数学座標（数直線・網目）を表示
+          </label>
+        </div>
+      </div>
+
+      <!-- 問題・解説エリア -->
+      <div class="card" id="problem-card">
+        <h3 id="problem-title">問題の読み込み中...</h3>
+        <div id="problem-content" style="font-size: 13.5px; font-weight: normal; line-height: 1.6;">
+        </div>
+
+        <div class="answer-section" id="answer-ui-container">
+        </div>
+      </div>
+
+      <!-- 車両設定 -->
+      <div class="card">
+        <h3>車両設定</h3>
+        <div class="control-group">
+          <label for="vehicle-size" style="margin-top: 5px;">サイズ:</label>
+          <select id="vehicle-size" onchange="onVehicleConfigChange()">
+            <option value="medium" selected>普通車</option>
+            <option value="bus">バス・トラック</option>
+          </select>
+        </div>
+        <div id="inner-wheel-diff" class="value-box" style="margin-top: 10px; font-size: 15px; color: #d9534f; border-top: 1px dashed #ccc; padding-top: 10px;">
+          内輪差 (理論値): - m
+        </div>
+      </div>
+
+    </div>
+  </div>
+</body>
+</html>
