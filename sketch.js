@@ -542,8 +542,22 @@ function draw() {
   
   pop(); 
   
-  fill(0); textSize(17); textAlign(LEFT, BASELINE);
-  text("【操作】 歩行者(青点)をドラッグ / スペースキーで『走行/リセット』", 20, 30);
+  // ▼ 操作方法の常時表示（目立たせるUI） ▼
+  push();
+  fill(255, 255, 255, 240); // 半透明の白背景
+  stroke(220, 50, 50);      // 赤い枠線
+  strokeWeight(2);
+  rectMode(CORNER);
+  rect(10, 10, 550, 42, 8); // 角丸の背景パネル
+  
+  fill(220, 50, 50);        // 赤い文字
+  noStroke();
+  textSize(18);
+  textStyle(BOLD);
+  textAlign(LEFT, CENTER);
+  text("【操作】 スペースキー : 車の走行 ｜ 歩行者(青点) : ドラッグ", 20, 31);
+  pop();
+  // ▲ ここまで ▲
   
   fill(255, 240); stroke(100); strokeWeight(1); rectMode(CORNER);
   rect(580, 15, 200, 115, 5);
@@ -647,7 +661,7 @@ function updateUI() {
         contentElem.innerHTML = `
           <div style="padding: 12px; background-color: #f8f9fa; border-left: 5px solid #007bff; border-radius: 4px;">
             <strong style="color: #007bff; font-size: 15px;">【演習問題】</strong><br>
-            先ほど求めた領域の実際の面積 $S$ を求めよ。<br><br>
+            先ほど求めた領域の実際の面積 $S$ （シミュレータの前輪の軌跡と後輪の軌跡に挟まれた部分）を求めよ。<br><br>
             <strong>＜条件（現在の車両設定）＞</strong><br>
             ・前輪軌跡の半径 $R_f \\approx ${r_f_disp}\\,\\text{m}$、後輪軌跡の半径 $R_r = ${r_r_disp}\\,\\text{m}$ とする。<br>
             ・前輪が直線から曲線へ切り替わる角度を $\\alpha = 45^\\circ$ とする。<br><br>
